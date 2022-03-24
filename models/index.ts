@@ -9,8 +9,10 @@ import { Model } from 'sequelize'
 const path = require('path')
 const sequelizeNoUpdateAttributes = require('sequelize-notupdate-attributes')
 const Sequelize = require('sequelize')
-const sequelize = new Sequelize('database', 'username', 'password', {
-  dialect: 'sqlite',
+const sequelize = new Sequelize('juiceshop', 'dev', 'example', {
+  dialect: 'mariadb',
+  host: 'db'
+  /*
   retry: {
     match: [
       /SQLITE_BUSY/
@@ -20,7 +22,8 @@ const sequelize = new Sequelize('database', 'username', 'password', {
   },
   transactionType: 'IMMEDIATE',
   storage: 'data/juiceshop.sqlite',
-  logging: false
+  logging: true
+  */
 })
 sequelizeNoUpdateAttributes(sequelize)
 const db: Database = { sequelize, Sequelize }

@@ -6,7 +6,8 @@ RUN npm install --production --unsafe-perm
 RUN npm dedupe
 RUN rm -rf frontend/node_modules
 
-FROM node:16-alpine
+FROM node:16-buster-slim
+#FROM node:16-alpine
 ARG BUILD_DATE
 ARG VCS_REF
 LABEL maintainer="Bjoern Kimminich <bjoern.kimminich@owasp.org>" \
@@ -29,6 +30,10 @@ RUN mkdir logs && \
     chown -R juicer logs && \
     chgrp -R 0 ftp/ frontend/dist/ logs/ data/ i18n/ && \
     chmod -R g=u ftp/ frontend/dist/ logs/ data/ i18n/
-USER 1001
+
+RUN npm explore @datadog/native-appsec -- npm run install
+
+# USER 1001
+
 EXPOSE 3000
-CMD ["npm", "start"]
+#CMD ["npm", "start"]

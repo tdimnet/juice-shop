@@ -1,0 +1,48 @@
+version: "3"
+services:
+  app:
+    build: .
+    environment:
+      - DD_AGENT_HOST=datadog-agent
+      - DD_TRACE_AGENT_PORT=8126
+      - DD_ENV=dev
+      - DD_APPSEC_ENABLED=true
+    env_file:
+      - ./.env
+    depends_on:
+      - datadog-agent
+    ports:
+      - "3000:3000"
+    tty: true
+    stdin_open: true
+  datadog-agent:
+    image: datadog/agent
+    environment:
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_CONTAINER_EXCLUDE="name:datadog-agent"
+    env_file:
+      - ./.env
+    ports:
+      - "8126:8126"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  db:
+    image: mariadb
+    environment:
+      # DB
+      DB_ADDRESS: db
+      MARIADB_ROOT_PASSWORD: example
+      MARIADB_USER: dev
+      MARIADB_PASSWORD: example
+      MARIADB_DATABASE: juiceshop
+      # DD
+      DD_ENV: dev
+    labels:
+      com.datadoghq.com.logs: '[{ "source": "mysql", "service": "mysql" }]'
+
