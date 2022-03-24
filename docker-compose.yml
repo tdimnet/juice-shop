@@ -45,4 +45,7 @@ services:
       DD_ENV: dev
     labels:
       com.datadoghq.com.logs: '[{ "source": "mysql", "service": "mysql" }]'
+      com.datadoghq.ad.check_names: '[ "mysql" ]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{ "server":"%%host%%", "user":"datadog", "pass":"toto90" }]'
 
