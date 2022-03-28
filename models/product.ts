@@ -8,11 +8,11 @@ import utils = require('../lib/utils')
 const security = require('../lib/insecurity')
 const challenges = require('../data/datacache').challenges
 
-module.exports = (sequelize, { STRING, DECIMAL }) => {
+module.exports = (sequelize, { STRING, DECIMAL, TEXT }) => {
   const Product = sequelize.define('Product', {
     name: STRING,
     description: {
-      type: STRING,
+      type: TEXT,
       set (description) {
         if (!utils.disableOnContainerEnv()) {
           utils.solveIf(challenges.restfulXssChallenge, () => { return utils.contains(description, '<iframe src="javascript:alert(`xss`)">') })

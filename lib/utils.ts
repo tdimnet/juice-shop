@@ -77,6 +77,9 @@ export const containsEscaped = function (str: string, element: string) {
 }
 
 export const containsOrEscaped = function (str: string, element: string) {
+
+  // For now this seems to failed with MySQL and makes the project failed
+  return
   return contains(str, element) || containsEscaped(str, element)
 }
 
