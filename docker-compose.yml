@@ -14,7 +14,6 @@ services:
     depends_on:
       - datadog-agent
       - db
-      - adminer
     ports:
       - "3000:3000"
     tty: true

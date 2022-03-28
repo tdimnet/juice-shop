@@ -13,8 +13,8 @@ import { AppModule } from './app/app.module'
 import { environment } from './environments/environment'
 
 datadogRum.init({
-    applicationId: '',
-    clientToken: '',
+    applicationId: '608e0c3e-d223-4423-a9f3-bae72d30fd67',
+    clientToken: 'pubc401d9f72a20447a66e4162b1a4c0e3f',
     site: 'datadoghq.eu',
     service:'ng-juice-shop',
     // Specify a version number to identify the deployed version of your application in Datadog
