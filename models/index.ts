@@ -10,7 +10,7 @@ const path = require('path')
 const sequelizeNoUpdateAttributes = require('sequelize-notupdate-attributes')
 const Sequelize = require('sequelize')
 const sequelize = new Sequelize('juiceshop', 'dev', 'example', {
-  dialect: 'mariadb',
+  dialect: 'mysql',
   host: 'db'
   /*
   retry: {

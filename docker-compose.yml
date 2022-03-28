@@ -48,9 +48,3 @@ services:
       MYSQL_USER: dev
       MYSQL_PASSWORD: example
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-
