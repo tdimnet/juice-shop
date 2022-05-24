@@ -40,7 +40,7 @@ const ProductModelInit = (sequelize: Sequelize) => {
       },
       name: DataTypes.STRING,
       description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         set (description: string) {
           if (!utils.disableOnContainerEnv()) {
             utils.solveIf(challenges.restfulXssChallenge, () => {
