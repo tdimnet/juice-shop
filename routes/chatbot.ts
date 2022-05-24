@@ -5,8 +5,11 @@
 
 import fs = require('fs')
 import { Request, Response, NextFunction } from 'express'
-import models = require('../models/index')
+import { User } from '../data/types'
+import { UserModel } from '../models/user'
+import { JwtPayload, VerifyErrors } from 'jsonwebtoken'
 
+const logger = require('../lib/logger')
 const { Bot } = require('juicy-chat-bot')
 const security = require('../lib/insecurity')
 const jwt = require('jsonwebtoken')
@@ -17,7 +20,7 @@ const download = require('download')
 const challenges = require('../data/datacache').challenges
 
 let trainingFile = config.get('application.chatBot.trainingData')
-let testCommand, bot
+let testCommand: string, bot: any
 
 async function initialize () {
   if (utils.isUrl(trainingFile)) {
@@ -42,7 +45,7 @@ async function initialize () {
 
 void initialize()
 
-async function processQuery (user, req: Request, res: Response) {
+async function processQuery (user: User, req: Request, res: Response) {
   const username = user.username
   if (!username) {
     res.status(200).json({
@@ -104,19 +107,26 @@ async function processQuery (user, req: Request, res: Response) {
   }
 }
 
-function setUserName (user, req: Request, res: Response) {
-  models.User.findByPk(user.id).then(user => {
-    user.update({ username: req.body.query }).then(newuser => {
-      newuser = utils.queryResultToJson(newuser)
-      const updatedToken = security.authorize(newuser)
-      security.authenticatedUsers.put(updatedToken, newuser)
-      bot.addUser(`${newuser.id}`, req.body.query)
+function setUserName (user: User, req: Request, res: Response) {
+  UserModel.findByPk(user.id).then((user: UserModel | null) => {
+    if (!user) {
+      throw new Error('No such user found!')
+    }
+    void user.update({ username: req.body.query }).then((updatedUser: UserModel) => {
+      updatedUser = utils.queryResultToJson(updatedUser)
+      const updatedToken = security.authorize(updatedUser)
+      security.authenticatedUsers.put(updatedToken, updatedUser)
+      bot.addUser(`${updatedUser.id}`, req.body.query)
       res.status(200).json({
         action: 'response',
-        body: bot.greet(`${newuser.id}`),
+        body: bot.greet(`${updatedUser.id}`),
         token: updatedToken
       })
+    }).catch((err: unknown) => {
+      logger.error(`Could not set username: ${utils.getErrorMessage(err)}`)
     })
+  }).catch((err: unknown) => {
+    logger.error(`Could not set username: ${utils.getErrorMessage(err)}`)
   })
 }
 
@@ -135,8 +145,8 @@ module.exports.status = function status () {
     }
     const token = req.cookies.token || utils.jwtFrom(req)
     if (token) {
-      const user = await new Promise((resolve, reject) => {
-        jwt.verify(token, security.publicKey, (err, decoded) => {
+      const user: User = await new Promise((resolve, reject) => {
+        jwt.verify(token, security.publicKey, (err: VerifyErrors | null, decoded: JwtPayload) => {
           if (err !== null) {
             res.status(401).json({
               error: 'Unauthenticated user'
@@ -193,8 +203,8 @@ module.exports.process = function respond () {
       return
     }
 
-    const user = await new Promise((resolve, reject) => {
-      jwt.verify(token, security.publicKey, (err, decoded) => {
+    const user: User = await new Promise((resolve, reject) => {
+      jwt.verify(token, security.publicKey, (err: VerifyErrors | null, decoded: JwtPayload) => {
         if (err !== null) {
           res.status(401).json({
             error: 'Unauthenticated user'
