@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-import models = require('../models/index')
 import { Request, Response, NextFunction } from 'express'
+import { MemoryModel } from '../models/memory'
+import { ProductModel } from '../models/product'
 
 const utils = require('../lib/utils')
 const security = require('../lib/insecurity')
@@ -18,7 +19,30 @@ module.exports = function dataExport () {
       const username = loggedInUser.data.username
       const email = loggedInUser.data.email
       const updatedEmail = email.replace(/[aeiou]/gi, '*')
-      const userData = {
+      const userData:
+      {
+        username: string
+        email: string
+        orders: Array<{
+          orderId: string
+          totalPrice: number
+          products: ProductModel[]
+          bonus: number
+          eta: string
+        }>
+        reviews: Array<{
+          message: string
+          author: string
+          productId: number
+          likesCount: number
+          likedBy: string
+        }>
+        memories: Array<{
+          imageUrl: string
+          caption: string
+        }>
+      } =
+      {
         username,
         email,
         orders: [],
@@ -26,15 +50,21 @@ module.exports = function dataExport () {
         memories: []
       }
 
-      const memories = await models.Memory.findAll({ where: { UserId: req.body.UserId } })
-      memories.forEach(memory => {
+      const memories = await MemoryModel.findAll({ where: { UserId: req.body.UserId } })
+      memories.forEach((memory: MemoryModel) => {
         userData.memories.push({
           imageUrl: req.protocol + '://' + req.get('host') + '/' + memory.imagePath,
           caption: memory.caption
         })
       })
 
-      db.orders.find({ email: updatedEmail }).then(orders => {
+      db.orders.find({ email: updatedEmail }).then((orders: Array<{
+        orderId: string
+        totalPrice: number
+        products: ProductModel[]
+        bonus: number
+        eta: string
+      }>) => {
         if (orders.length > 0) {
           orders.forEach(order => {
             userData.orders.push({
@@ -47,7 +77,13 @@ module.exports = function dataExport () {
           })
         }
 
-        db.reviews.find({ author: email }).then(reviews => {
+        db.reviews.find({ author: email }).then((reviews: Array<{
+          message: string
+          author: string
+          product: number
+          likesCount: number
+          likedBy: string
+        }>) => {
           if (reviews.length > 0) {
             reviews.forEach(review => {
               userData.reviews.push({
